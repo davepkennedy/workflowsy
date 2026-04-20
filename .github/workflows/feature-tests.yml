@@ -1,0 +1,27 @@
+name: Feature Tests
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+concurrency:
+  group: "feature-tests"
+  cancel-in-progress: true
+
+jobs:
+  feature-tests:
+    name: Run Feature Tests
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run feature tests
+        run: go test -v -tags=feature ./...
